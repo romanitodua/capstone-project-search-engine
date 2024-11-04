@@ -1,6 +1,4 @@
-package engine
-
-// search Strategies
+package models
 
 const (
 	BitonicSort = "bitonicSort"

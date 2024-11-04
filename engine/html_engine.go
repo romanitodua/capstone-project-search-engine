@@ -5,6 +5,7 @@ import (
 	"cli-search-engine/models"
 	"cli-search-engine/strategies"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"math"
@@ -23,14 +24,37 @@ func NewHtmlEngine(jsonFile string) *HtmlEngine {
 	return &HtmlEngine{documents}
 }
 
-func (e *HtmlEngine) Search(terms []string, strategy string) string {
-	// calculate tf-idf for searched terms
+// Search
+// different strategies support different flags
+// Flag's first element must always be a strategy
+func (e *HtmlEngine) Search(terms []string, flags []string) string {
+	if len(flags) == 0 {
+		return fmt.Sprintf("error - not enough flags")
+	}
+	strategy := flags[0]
+	logger, err := engineLogger.NewLogger(strategy)
+	if err != nil {
+		log.Fatalf("err could not create logger: %v", err)
+	}
+
 	res := calculateITF(e.Documents, terms)
 
 	switch strategy {
-	case BitonicSort:
-		logger := engineLogger.NewBitonicSortLogger()
-		bitonicSortStrategy := strategies.NewBitonicSort(res, 1, logger)
+	case models.BitonicSort:
+		// if bitonicSort next in flag must be a direction
+		if len(flags) < 2 {
+			return fmt.Sprintf("error - not enough flags,bitonicSort is missing direction")
+		}
+		dir := 0
+		switch flags[1] {
+		case "asc":
+			dir = 1
+		case "desc":
+			dir = 0
+		default:
+			return fmt.Sprintf("error - unsuported direction- {asc,desc} user `desc` for convinience")
+		}
+		bitonicSortStrategy := strategies.NewBitonicSort(res, dir, logger)
 		return bitonicSortStrategy.Sort()
 	}
 	return ""

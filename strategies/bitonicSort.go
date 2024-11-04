@@ -4,6 +4,8 @@ import (
 	"cli-search-engine/engineLogger"
 	"cli-search-engine/models"
 	"fmt"
+	"math"
+	"slices"
 	"strings"
 	"sync"
 )
@@ -11,10 +13,11 @@ import (
 type BitonicSort struct {
 	Elements  []*models.TFIDF
 	Direction int
-	Logger    *engineLogger.BitonicSortLogger
+	Logger    engineLogger.Logger
 }
 
-func NewBitonicSort(elements []*models.TFIDF, dir int, logger *engineLogger.BitonicSortLogger) *BitonicSort {
+// NewBitonicSort descending direction - 0, ascending direction - 1
+func NewBitonicSort(elements []*models.TFIDF, dir int, logger engineLogger.Logger) *BitonicSort {
 	l := len(elements)
 	var startMessage strings.Builder
 	startMessage.WriteString(fmt.Sprintf("initialized with elements of length - %d", l))
@@ -43,11 +46,28 @@ func (b *BitonicSort) Sort() string {
 	b.bitonicSort(b.Elements, b.Direction)
 	b.Logger.End()
 	b.Logger.SetResult(models.GetTFIDFElements(b.Elements))
+
 	err := b.Logger.Log()
 	if err != nil {
 		fmt.Printf("search ended with an error while saving logs: %v\n", err)
 	}
-	return "search ended"
+
+	if len(b.Elements) == 0 {
+		return fmt.Sprintf("search results not found")
+	}
+
+	b.Elements = slices.DeleteFunc(b.Elements, func(e *models.TFIDF) bool {
+		if b.Direction == 1 {
+			return e.Tfidf == math.Inf(1)
+		} else {
+			return e.Tfidf == math.Inf(-1)
+		}
+	})
+	if len(b.Elements) < 5 {
+		return fmt.Sprintf("top matches are - %s", models.GetTFIDFElements(b.Elements))
+	}
+	return fmt.Sprintf("top matches are - %s,showing 5docs out of %d see more in the logs0",
+		models.GetTFIDFElements(b.Elements[:5]), len(b.Elements))
 }
 
 func (b *BitonicSort) bitonicSort(elements []*models.TFIDF, dir int) {
