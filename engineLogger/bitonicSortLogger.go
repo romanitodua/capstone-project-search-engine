@@ -8,15 +8,15 @@ import (
 )
 
 type BitonicSortLog struct {
-	StartMessage         string                 `json:"startMessage,omitempty"`
-	StartedAt            time.Time              `json:"startedAt"`
-	EndedAt              time.Time              `json:"endedAt"`
-	Duration             int                    `json:"duration"` //seconds
-	SpawnedThreads       int                    `json:"SpawnedThreads"`
-	MaxConcurrentThreads int                    `json:"maxConcurrentThreads"`
-	Result               string                 `json:"result"`
-	Iterations           []BitonicSortIteration `json:"iterations"`
-	CurrentMax           int                    `json:"-"`
+	StartMessage         string                  `json:"startMessage,omitempty"`
+	StartedAt            time.Time               `json:"startedAt"`
+	EndedAt              time.Time               `json:"endedAt"`
+	Duration             int                     `json:"duration"` //seconds
+	SpawnedThreads       int                     `json:"SpawnedThreads"`
+	MaxConcurrentThreads int                     `json:"maxConcurrentThreads"`
+	Result               string                  `json:"result"`
+	Iterations           []*BitonicSortIteration `json:"iterations"`
+	CurrentMax           int                     `json:"-"`
 }
 
 type BitonicSortIteration struct {
@@ -76,7 +76,7 @@ func (l *BitonicSortLogger) End() {
 func (l *BitonicSortLogger) AddIteration(info string, currentElements string) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
-	l.log.Iterations = append(l.log.Iterations, BitonicSortIteration{
+	l.log.Iterations = append(l.log.Iterations, &BitonicSortIteration{
 		Info:            info,
 		CurrentElements: currentElements,
 	})
@@ -104,4 +104,8 @@ func (l *BitonicSortLogger) SetResult(result string) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	l.log.Result = result
+}
+
+func (l *BitonicSortLogger) AddQuickSortIteration(low, high int, elements string) {
+	return
 }

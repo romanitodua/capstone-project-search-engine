@@ -45,7 +45,6 @@ func NewBitonicSort(elements []*models.TFIDF, dir int, logger engineLogger.Logge
 func (b *BitonicSort) Sort() string {
 	b.bitonicSort(b.Elements, b.Direction)
 	b.Logger.End()
-	b.Logger.SetResult(models.GetTFIDFElements(b.Elements))
 
 	err := b.Logger.Log()
 	if err != nil {
@@ -63,6 +62,8 @@ func (b *BitonicSort) Sort() string {
 			return e.Tfidf == math.Inf(-1)
 		}
 	})
+
+	b.Logger.SetResult(models.GetTFIDFElements(b.Elements))
 	if len(b.Elements) < 5 {
 		return fmt.Sprintf("top matches are - %s", models.GetTFIDFElements(b.Elements))
 	}

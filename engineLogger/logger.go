@@ -14,12 +14,15 @@ type Logger interface {
 	AddThread()
 	ReleaseThread()
 	SetResult(result string)
+	AddQuickSortIteration(low, high int, elements string)
 }
 
 func NewLogger(strategy string) (Logger, error) {
 	switch strategy {
 	case models.BitonicSort:
 		return NewBitonicSortLogger(), nil
+	case models.QuickSort:
+		return NewQuickSortLogger(), nil
 	default:
 		return nil, fmt.Errorf("unsupported strategy")
 	}

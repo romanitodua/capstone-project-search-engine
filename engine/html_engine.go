@@ -56,6 +56,9 @@ func (e *HtmlEngine) Search(terms []string, flags []string) string {
 		}
 		bitonicSortStrategy := strategies.NewBitonicSort(res, dir, logger)
 		return bitonicSortStrategy.Sort()
+	case models.QuickSort:
+		quickSortStrategy := strategies.NewQuickSort(res, logger)
+		return quickSortStrategy.Sort()
 	}
 	return ""
 }
