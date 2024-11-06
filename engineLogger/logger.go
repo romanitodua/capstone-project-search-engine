@@ -10,11 +10,7 @@ type Logger interface {
 	SetStartMessage(msg string)
 	Start()
 	End()
-	AddIteration(info string, currentElements string)
-	AddThread()
-	ReleaseThread()
 	SetResult(result string)
-	AddQuickSortIteration(low, high int, elements string)
 }
 
 func NewLogger(strategy string) (Logger, error) {
@@ -23,6 +19,9 @@ func NewLogger(strategy string) (Logger, error) {
 		return NewBitonicSortLogger(), nil
 	case models.QuickSort:
 		return NewQuickSortLogger(), nil
+	case models.PatternMatch:
+		return NewPatternMatchingLogger(), nil
+
 	default:
 		return nil, fmt.Errorf("unsupported strategy")
 	}

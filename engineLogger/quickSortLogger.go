@@ -65,9 +65,6 @@ func (l *QuickSortLogger) End() {
 	l.log.Duration = int(l.log.Ended.Sub(l.log.Started).Seconds())
 }
 
-func (l *QuickSortLogger) AddIteration(info string, currentElements string) {
-	return
-}
 func (l *QuickSortLogger) AddQuickSortIteration(low, high int, elements string) {
 	i := &QuickSortIteration{
 		QuickSortCallLow:            low,
@@ -76,14 +73,6 @@ func (l *QuickSortLogger) AddQuickSortIteration(low, high int, elements string) 
 		ElementsAfterPartition:      elements,
 	}
 	l.log.Iterations = append(l.log.Iterations, i)
-}
-
-func (l *QuickSortLogger) AddThread() {
-	return
-}
-
-func (l *QuickSortLogger) ReleaseThread() {
-	return
 }
 
 func (l *QuickSortLogger) SetResult(result string) {

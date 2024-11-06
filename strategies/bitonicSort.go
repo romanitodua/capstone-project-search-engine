@@ -13,7 +13,7 @@ import (
 type BitonicSort struct {
 	Elements  []*models.TFIDF
 	Direction int
-	Logger    engineLogger.Logger
+	Logger    *engineLogger.BitonicSortLogger
 }
 
 // NewBitonicSort descending direction - 0, ascending direction - 1
@@ -34,11 +34,12 @@ func NewBitonicSort(elements []*models.TFIDF, dir int, logger engineLogger.Logge
 			}
 		}
 	}
-	logger.SetStartMessage(startMessage.String())
+	acquireLogger := logger.(*engineLogger.BitonicSortLogger)
+	acquireLogger.SetStartMessage(startMessage.String())
 	return &BitonicSort{
 		Elements:  elements,
 		Direction: dir,
-		Logger:    logger,
+		Logger:    acquireLogger,
 	}
 }
 

@@ -7,14 +7,15 @@ import (
 )
 
 type QuickSort struct {
-	Logger   engineLogger.Logger
+	Logger   *engineLogger.QuickSortLogger
 	Elements []*models.TFIDF
 }
 
 func NewQuickSort(elements []*models.TFIDF, logger engineLogger.Logger) *QuickSort {
-	logger.SetStartMessage(fmt.Sprintf("initialized quickSort with elements of length %d", len(elements)))
+	acquireLogger := logger.(*engineLogger.QuickSortLogger)
+	acquireLogger.SetStartMessage(fmt.Sprintf("initialized quickSort with elements of length %d", len(elements)))
 	return &QuickSort{
-		Logger:   logger,
+		Logger:   acquireLogger,
 		Elements: elements,
 	}
 }
