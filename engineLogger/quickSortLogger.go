@@ -1,6 +1,7 @@
 package engineLogger
 
 import (
+	"cli-search-engine/utils"
 	"encoding/json"
 	"os"
 	"time"
@@ -12,8 +13,10 @@ type QuickSortLogger struct {
 
 type QuickSortLog struct {
 	StartMessage string                `json:"startMessage,omitempty"`
-	StartedAt    time.Time             `json:"startedAt"`
-	EndedAt      time.Time             `json:"endedAt"`
+	StartedAt    string                `json:"startedAt"`
+	EndedAt      string                `json:"endedAt"`
+	Started      time.Time             `json:"-"`
+	Ended        time.Time             `json:"-"`
 	Duration     int                   `json:"duration"` //seconds
 	Result       string                `json:"result"`
 	Iterations   []*QuickSortIteration `json:"recursiveCalls"`
@@ -52,12 +55,14 @@ func (l *QuickSortLogger) SetStartMessage(msg string) {
 }
 
 func (l *QuickSortLogger) Start() {
-	l.log.StartedAt = time.Now()
+	l.log.Started = time.Now()
+	l.log.StartedAt = utils.FormatTime(l.log.Started)
 }
 
 func (l *QuickSortLogger) End() {
-	l.log.EndedAt = time.Now()
-	l.log.Duration = int(l.log.EndedAt.Sub(l.log.StartedAt).Seconds())
+	l.log.Ended = time.Now()
+	l.log.EndedAt = utils.FormatTime(l.log.Ended)
+	l.log.Duration = int(l.log.Ended.Sub(l.log.Started).Seconds())
 }
 
 func (l *QuickSortLogger) AddIteration(info string, currentElements string) {
