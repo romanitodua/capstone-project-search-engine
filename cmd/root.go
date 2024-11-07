@@ -23,7 +23,7 @@ var rootCmd = &cobra.Command{
 
 var loadCmd = &cobra.Command{
 	Use:   "load",
-	Short: "creates a new html engine based on the json file",
+	Short: "search for a patterns in from a provided json file0",
 	Long:  "load json file containing the data of html documents",
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) < 1 {
@@ -52,6 +52,7 @@ var loadCmd = &cobra.Command{
 func init() {
 	rootCmd.PersistentFlags().StringVar(&filePath, "file", "", "path to the JSON file for HtmlEngine")
 	rootCmd.AddCommand(loadCmd)
+	rootCmd.AddCommand(pMatchCmd)
 }
 func Execute() {
 	err := rootCmd.Execute()

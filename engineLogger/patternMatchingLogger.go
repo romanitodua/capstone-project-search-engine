@@ -12,13 +12,21 @@ type PatternMatchingLogger struct {
 }
 
 type PatternMatchLog struct {
-	StartMessage string    `json:"startMessage,omitempty"`
-	StartedAt    string    `json:"startedAt"`
-	EndedAt      string    `json:"endedAt"`
-	Started      time.Time `json:"-"`
-	Ended        time.Time `json:"-"`
-	Duration     int       `json:"duration"` //seconds
-	Result       string    `json:"result"`
+	StartMessage    string                   `json:"startMessage,omitempty"`
+	StartedAt       string                   `json:"startedAt"`
+	EndedAt         string                   `json:"endedAt"`
+	Started         time.Time                `json:"-"`
+	Ended           time.Time                `json:"-"`
+	Duration        int                      `json:"duration"` //seconds
+	Result          string                   `json:"result"`
+	FailureFunction []int                    `json:"failureFunction"`
+	Iteration       []*PatternMatchIteration `json:"iteration"`
+}
+
+type PatternMatchIteration struct {
+	Document                string `json:"document"`
+	TotalPatternOccurrences int    `json:"totalPatternOccurrences"`
+	PatternsDetectedIndexes []int  `json:"patternsDetectedIndexes"`
 }
 
 func NewPatternMatchingLogger() *PatternMatchingLogger {
@@ -26,13 +34,13 @@ func NewPatternMatchingLogger() *PatternMatchingLogger {
 }
 
 func (l *PatternMatchingLogger) Log() error {
-	bitonicSortLogFileName := "quickSortLog.json"
+	patternMatchLogFileName := "patternMatchLog.json"
 	logData, err := json.MarshalIndent(l.log, "", "  ")
 	if err != nil {
 		return err
 	}
 
-	err = os.WriteFile(bitonicSortLogFileName, logData, 0644)
+	err = os.WriteFile(patternMatchLogFileName, logData, 0644)
 	if err != nil {
 		return err
 	}
@@ -57,4 +65,13 @@ func (l *PatternMatchingLogger) End() {
 
 func (l *PatternMatchingLogger) SetResult(result string) {
 	l.log.Result = result
+}
+
+func (l *PatternMatchingLogger) SetFailureFunction(f []int) {
+	l.log.FailureFunction = f
+}
+
+func (l *PatternMatchingLogger) AcquireIteration() *PatternMatchIteration {
+	l.log.Iteration = append(l.log.Iteration, &PatternMatchIteration{})
+	return l.log.Iteration[len(l.log.Iteration)-1]
 }
