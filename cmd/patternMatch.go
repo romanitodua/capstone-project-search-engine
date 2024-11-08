@@ -12,8 +12,9 @@ import (
 
 var pMatchCmd = &cobra.Command{
 	Use:   "patternMatch",
-	Short: "creates a new html engine based on the json file",
-	Long:  "load json file containing the data of html documents",
+	Short: "search for a pattern within a give json file",
+	Long: "load json file containing the data of using the parsed command \n" +
+		"Usage, : patternMatch pmatchDocs.json -> type in  any pattern",
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) < 1 {
 			cobra.CompError("please provide a json file")
