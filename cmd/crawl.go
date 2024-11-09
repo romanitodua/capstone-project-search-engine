@@ -40,8 +40,7 @@ var crawlCmd = &cobra.Command{
 
 func crawl(docsToDownload int) {
 	wg := sync.WaitGroup{}
-	documentsToDownload := 1
-	for i := 0; i < documentsToDownload; i++ {
+	for i := 0; i < docsToDownload; i++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
