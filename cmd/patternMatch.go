@@ -26,7 +26,7 @@ var pMatchCmd = &cobra.Command{
 			panic(fmt.Sprintf("error: failed to initialize pattern matching engine - %s", err.Error()))
 		}
 
-		fmt.Println(startUpMessage)
+		fmt.Println(startUpMessagePM)
 		for {
 			fmt.Println("type in a pattern to search")
 			reader := bufio.NewReader(os.Stdin)

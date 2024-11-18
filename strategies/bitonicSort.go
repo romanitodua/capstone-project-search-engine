@@ -47,11 +47,6 @@ func (b *BitonicSort) Sort() string {
 	b.bitonicSort(b.Elements, b.Direction)
 	b.Logger.End()
 
-	err := b.Logger.Log()
-	if err != nil {
-		fmt.Printf("search ended with an error while saving logs: %v\n", err)
-	}
-
 	if len(b.Elements) == 0 {
 		return fmt.Sprintf("search results not found")
 	}
@@ -63,12 +58,16 @@ func (b *BitonicSort) Sort() string {
 			return e.Tfidf == math.Inf(-1)
 		}
 	})
-
 	b.Logger.SetResult(models.GetTFIDFElements(b.Elements))
+	err := b.Logger.Log()
+	if err != nil {
+		fmt.Printf("search ended with an error while saving logs: %v\n", err)
+	}
+
 	if len(b.Elements) < 5 {
 		return fmt.Sprintf("top matches are - %s", models.GetTFIDFElements(b.Elements))
 	}
-	return fmt.Sprintf("top matches are - %s,showing 5docs out of %d see more in the logs0",
+	return fmt.Sprintf("top matches are - %s,showing 5docs out of %d see more in the logs",
 		models.GetTFIDFElements(b.Elements[:5]), len(b.Elements))
 }
 

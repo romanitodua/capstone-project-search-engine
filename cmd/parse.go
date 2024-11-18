@@ -69,6 +69,7 @@ func parseHtml() ([]map[string]map[string]int, map[string]string, error) {
 			if err != nil {
 				log.Fatal(err)
 			}
+			filename := strings.ReplaceAll(strings.ReplaceAll(path, `html_data\`, ""), "_", " ")
 			defer file.Close()
 			doc, err := goquery.NewDocumentFromReader(file)
 			if err != nil {
@@ -85,14 +86,14 @@ func parseHtml() ([]map[string]map[string]int, map[string]string, error) {
 					tf[token] += 1
 				}
 			}
-			dtf[path] = tf
+			dtf[filename] = tf
 			docs = append(docs, dtf)
 
 			text, err := extractTextPM(doc)
 			if err != nil {
 				return err
 			}
-			pmDocs[path] = text
+			pmDocs[filename] = text
 		}
 		return nil
 	})

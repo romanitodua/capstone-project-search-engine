@@ -10,11 +10,16 @@ var HtmlEngine *engine.HtmlEngine
 var filePath string
 
 const (
-	startUpMessage = "start up message"
+	startUpMessagePM     = "pattern matching engine initialized"
+	startUpMessageSearch = "search engine initialized"
+)
+
+const (
+	appName = "goseek"
 )
 
 var rootCmd = &cobra.Command{
-	Use: "cli-search-engine",
+	Use: appName,
 }
 
 func init() {

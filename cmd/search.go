@@ -23,7 +23,7 @@ var search = &cobra.Command{
 		filePath = args[0]
 		HtmlEngine = engine.NewHtmlEngine(filePath)
 
-		fmt.Println(startUpMessage)
+		fmt.Println(startUpMessageSearch)
 		for {
 			fmt.Println("type in search keywords")
 			reader := bufio.NewReader(os.Stdin)
