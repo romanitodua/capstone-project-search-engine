@@ -3,6 +3,8 @@ package engineLogger
 import (
 	"cli-search-engine/utils"
 	"encoding/json"
+	"fmt"
+	"github.com/google/uuid"
 	"os"
 	"time"
 )
@@ -12,6 +14,7 @@ type QuickSortLogger struct {
 }
 
 type QuickSortLog struct {
+	Input        string                `json:"input"`
 	StartMessage string                `json:"startMessage,omitempty"`
 	StartedAt    string                `json:"startedAt"`
 	EndedAt      string                `json:"endedAt"`
@@ -20,6 +23,7 @@ type QuickSortLog struct {
 	Duration     int                   `json:"duration"` //seconds
 	Result       string                `json:"result"`
 	Iterations   []*QuickSortIteration `json:"recursiveCalls"`
+	InputSize    int                   `json:"inputSize"`
 }
 
 type QuickSortIteration struct {
@@ -35,8 +39,12 @@ func NewQuickSortLogger() *QuickSortLogger {
 	}
 }
 
-func (l *QuickSortLogger) Log() error {
-	bitonicSortLogFileName := "quickSortLog.json"
+func (l *QuickSortLogger) SetInputSize(size int) {
+	l.log.InputSize = size
+}
+
+func (l *QuickSortLogger) Log(len int) error {
+	bitonicSortLogFileName := fmt.Sprintf("%d-QS-%s.json", l.log.InputSize, uuid.NewString())
 	logData, err := json.MarshalIndent(l.log, "", "  ")
 	if err != nil {
 		return err
@@ -77,4 +85,8 @@ func (l *QuickSortLogger) AddQuickSortIteration(low, high int, elements string) 
 
 func (l *QuickSortLogger) SetResult(result string) {
 	l.log.Result = result
+}
+
+func (l *QuickSortLogger) SetInput(input string) {
+	l.log.Input = input
 }

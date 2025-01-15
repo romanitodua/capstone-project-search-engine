@@ -34,6 +34,7 @@ func NewPatternMatchEngine(filePath string) (*PatternMatchingStrategy, error) {
 
 func (p *PatternMatchingStrategy) Search(pattern string) string {
 	result := map[string]int{}
+	p.logger.SetInputSize(len(p.data))
 	p.logger.SetStartMessage(fmt.Sprintf(
 		"pattern matching initialized with %d documents, search pattern - %s", len(p.data), pattern))
 	p.logger.Start()
@@ -57,7 +58,7 @@ func (p *PatternMatchingStrategy) Search(pattern string) string {
 		resultBuilder.WriteString("no matches found")
 	}
 	p.logger.SetResult(resultBuilder.String())
-	err := p.logger.Log()
+	err := p.logger.Log(len(p.data))
 	if err != nil {
 		fmt.Println("error: failed to log the results of pattern matching")
 	}

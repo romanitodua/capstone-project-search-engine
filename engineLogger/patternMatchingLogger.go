@@ -3,6 +3,8 @@ package engineLogger
 import (
 	"cli-search-engine/utils"
 	"encoding/json"
+	"fmt"
+	"github.com/google/uuid"
 	"os"
 	"time"
 )
@@ -12,6 +14,7 @@ type PatternMatchingLogger struct {
 }
 
 type PatternMatchLog struct {
+	Input           string                   `json:"-"`
 	StartMessage    string                   `json:"startMessage,omitempty"`
 	StartedAt       string                   `json:"startedAt"`
 	EndedAt         string                   `json:"endedAt"`
@@ -21,6 +24,7 @@ type PatternMatchLog struct {
 	Result          string                   `json:"result"`
 	FailureFunction []int                    `json:"failureFunction"`
 	Iteration       []*PatternMatchIteration `json:"iteration"`
+	InputSize       int                      `json:"-"`
 }
 
 type PatternMatchIteration struct {
@@ -33,8 +37,12 @@ func NewPatternMatchingLogger() *PatternMatchingLogger {
 	return &PatternMatchingLogger{}
 }
 
-func (l *PatternMatchingLogger) Log() error {
-	patternMatchLogFileName := "patternMatchLog.json"
+func (l *PatternMatchingLogger) SetInputSize(size int) {
+	l.log.InputSize = size
+}
+
+func (l *PatternMatchingLogger) Log(len int) error {
+	patternMatchLogFileName := fmt.Sprintf("%d-PM-%s.json", l.log.InputSize, uuid.NewString())
 	logData, err := json.MarshalIndent(l.log, "", "  ")
 	if err != nil {
 		return err
@@ -74,4 +82,8 @@ func (l *PatternMatchingLogger) SetFailureFunction(f []int) {
 func (l *PatternMatchingLogger) AcquireIteration() *PatternMatchIteration {
 	l.log.Iteration = append(l.log.Iteration, &PatternMatchIteration{})
 	return l.log.Iteration[len(l.log.Iteration)-1]
+}
+
+func (l *PatternMatchingLogger) SetInput(input string) {
+	l.log.Input = input
 }

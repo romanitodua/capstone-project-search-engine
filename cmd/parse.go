@@ -3,6 +3,7 @@ package cmd
 import (
 	"cli-search-engine/stemmer"
 	"encoding/json"
+	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/spf13/cobra"
 	"log"
@@ -10,6 +11,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"time"
 )
 
 var textRegex = regexp.MustCompile(`[^\w\s]+`) //REGEX FOR CHARACTERS THAT ARE OUTSIDE [A-Z,0-9]
@@ -25,6 +27,8 @@ var parseCmd = &cobra.Command{
 	Short: "parse html files into json with stemming and tokenization of words & parse for patternMatching for later use by 'patternMatch command'",
 	Long:  "parses json acquired html files from crawl command",
 	Run: func(cmd *cobra.Command, args []string) {
+		startTime := time.Now()
+		fmt.Println(fmt.Sprintf("parse command executed at %v", startTime))
 		docs, pmDocs, err := parseHtml()
 		if err != nil {
 			log.Fatal(err)
@@ -55,6 +59,8 @@ var parseCmd = &cobra.Command{
 		if err != nil {
 			panic(err)
 		}
+		fmt.Println(fmt.Sprintf("parse command ended at %v", time.Now()))
+		fmt.Println(fmt.Sprintf("execution took %f seconds", time.Since(startTime).Seconds()))
 	},
 }
 
@@ -62,23 +68,40 @@ func parseHtml() ([]map[string]map[string]int, map[string]string, error) {
 	docs := []map[string]map[string]int{}
 	pmDocs := map[string]string{}
 	err := filepath.Walk(htmlDataDirectoryPath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			log.Printf("Error accessing path %s: %v", path, err)
+			return nil
+		}
+
+		if info == nil {
+			log.Printf("Nil FileInfo for path %s", path)
+			return nil
+		}
+
 		if !info.IsDir() {
 			dtf := make(map[string]map[string]int, 1)
 			tf := make(map[string]int)
+
 			file, err := os.OpenFile(path, os.O_RDONLY, 0622)
 			if err != nil {
-				log.Fatal(err)
+				log.Printf("Error opening file %s: %v", path, err)
+				return nil
 			}
-			filename := strings.ReplaceAll(strings.ReplaceAll(path, `html_data\`, ""), "_", " ")
 			defer file.Close()
+
+			filename := strings.ReplaceAll(strings.ReplaceAll(path, `html_data\`, ""), "_", " ")
 			doc, err := goquery.NewDocumentFromReader(file)
 			if err != nil {
-				return err
+				log.Printf("Error parsing HTML file %s: %v", path, err)
+				return nil
 			}
+
 			tokens, err := tokenizeFile(doc)
 			if err != nil {
-				return err
+				log.Printf("Error tokenizing file %s: %v", path, err)
+				return nil
 			}
+
 			for _, token := range tokens {
 				if _, ok := tf[token]; !ok {
 					tf[token] = 1
@@ -91,7 +114,8 @@ func parseHtml() ([]map[string]map[string]int, map[string]string, error) {
 
 			text, err := extractTextPM(doc)
 			if err != nil {
-				return err
+				log.Printf("Error extracting text for PM in file %s: %v", path, err)
+				return nil
 			}
 			pmDocs[filename] = text
 		}

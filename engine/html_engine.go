@@ -4,6 +4,7 @@ import (
 	"cli-search-engine/engineLogger"
 	"cli-search-engine/models"
 	"cli-search-engine/strategies"
+	"cli-search-engine/utils"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -36,6 +37,9 @@ func (e *HtmlEngine) Search(terms []string, flags []string) string {
 	if err != nil {
 		log.Fatalf("err could not create logger: %v", err)
 	}
+	logger.SetInput(utils.SliceToString(terms))
+	logger.Start()
+	logger.SetInputSize(len(*e.Documents))
 
 	res := calculateITF(e.Documents, terms)
 

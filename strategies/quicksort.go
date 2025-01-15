@@ -21,10 +21,9 @@ func NewQuickSort(elements []*models.TFIDF, logger engineLogger.Logger) *QuickSo
 }
 
 func (q *QuickSort) Sort() string {
-	q.Logger.Start()
 	q.quickSort(q.Elements, 0, len(q.Elements)-1)
 	q.Logger.End()
-	err := q.Logger.Log()
+	err := q.Logger.Log(len(q.Elements))
 	if err != nil {
 		return fmt.Sprintf("error while logging quickSort with elements of length %d", len(q.Elements))
 	}

@@ -6,7 +6,9 @@ import (
 )
 
 type Logger interface {
-	Log() error
+	SetInput(input string)
+	SetInputSize(size int)
+	Log(len int) error
 	SetStartMessage(msg string)
 	Start()
 	End()

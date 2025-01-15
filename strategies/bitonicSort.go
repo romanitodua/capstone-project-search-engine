@@ -59,7 +59,7 @@ func (b *BitonicSort) Sort() string {
 		}
 	})
 	b.Logger.SetResult(models.GetTFIDFElements(b.Elements))
-	err := b.Logger.Log()
+	err := b.Logger.Log(len(b.Elements))
 	if err != nil {
 		fmt.Printf("search ended with an error while saving logs: %v\n", err)
 	}
@@ -73,7 +73,6 @@ func (b *BitonicSort) Sort() string {
 
 func (b *BitonicSort) bitonicSort(elements []*models.TFIDF, dir int) {
 	l := len(elements)
-	b.Logger.Start()
 	if l > 1 {
 		var wg sync.WaitGroup
 		wg.Add(2)

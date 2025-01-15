@@ -3,12 +3,15 @@ package engineLogger
 import (
 	"cli-search-engine/utils"
 	"encoding/json"
+	"fmt"
+	"github.com/google/uuid"
 	"os"
 	"sync"
 	"time"
 )
 
 type BitonicSortLog struct {
+	Input                string                  `json:"input"`
 	StartMessage         string                  `json:"startMessage,omitempty"`
 	StartedAt            string                  `json:"startedAt"`
 	EndedAt              string                  `json:"endedAt"`
@@ -20,6 +23,7 @@ type BitonicSortLog struct {
 	Result               string                  `json:"result"`
 	Iterations           []*BitonicSortIteration `json:"iterations"`
 	CurrentMax           int                     `json:"-"`
+	InputSize            int                     `json:"-"`
 }
 
 type BitonicSortIteration struct {
@@ -38,11 +42,17 @@ func NewBitonicSortLogger() *BitonicSortLogger {
 	}
 }
 
-func (l *BitonicSortLogger) Log() error {
+func (l *BitonicSortLogger) SetInputSize(size int) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	l.log.InputSize = size
+}
+
+func (l *BitonicSortLogger) Log(len int) error {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
-	bitonicSortLogFileName := "bitonicSortLog.json"
+	bitonicSortLogFileName := fmt.Sprintf("%d-BS-%s.json", l.log.InputSize, uuid.NewString())
 	logData, err := json.MarshalIndent(l.log, "", "  ")
 	if err != nil {
 		return err
@@ -109,6 +119,12 @@ func (l *BitonicSortLogger) SetResult(result string) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	l.log.Result = result
+}
+
+func (l *BitonicSortLogger) SetInput(input string) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	l.log.Input = input
 }
 
 func (l *BitonicSortLogger) AddQuickSortIteration(low, high int, elements string) {

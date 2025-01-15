@@ -40,48 +40,59 @@ var crawlCmd = &cobra.Command{
 
 func crawl(docsToDownload int) {
 	wg := sync.WaitGroup{}
-	for i := 0; i < docsToDownload; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			r := rand.IntN(10)
-			time.Sleep(time.Second * time.Duration(r))
-			c := colly.NewCollector()
-			c.OnHTML("html", func(e *colly.HTMLElement) {
-				articleTitle := e.ChildText("#firstHeading")
+	currentCycle := 0
+	for {
+		if currentCycle > 0 {
+			time.Sleep(2 * time.Minute)
+		}
+		for i := 0; i < 250; i++ {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				r := rand.IntN(10)
+				time.Sleep(time.Second * time.Duration(r))
+				c := colly.NewCollector()
+				c.OnHTML("html", func(e *colly.HTMLElement) {
+					articleTitle := e.ChildText("#firstHeading")
 
-				if articleTitle == "" {
-					articleTitle = uuid.New().String()
-				}
-				fileName := strings.ReplaceAll(articleTitle, " ", "_") + ".html"
+					if articleTitle == "" {
+						articleTitle = uuid.New().String()
+					}
+					fileName := strings.ReplaceAll(articleTitle, " ", "_") + ".html"
 
-				err := ensureDirectoryExists(saveDir)
+					err := ensureDirectoryExists(saveDir)
+					if err != nil {
+						log.Fatal(err)
+						return
+					}
+					filePath := filepath.Join(saveDir, fileName)
+					html, err := e.DOM.Html()
+					if err != nil {
+						log.Printf("can't save html: %s", err)
+					}
+					err = os.WriteFile(filePath, []byte(html), 0644)
+					if err != nil {
+						log.Printf("Error saving article '%s': %v\n", articleTitle, err)
+					}
+					log.Printf("Article '%s' saved as '%s'\n", articleTitle, fileName)
+				})
+
+				c.OnError(func(r *colly.Response, err error) {
+					log.Printf("Request to %s failed: %v\n", r.Request.URL, err)
+				})
+
+				err := c.Visit(wikipediaRandomArticleUrl)
 				if err != nil {
-					log.Fatal(err)
-					return
+					log.Printf("Error visiting URL: %v\n", err)
 				}
-				filePath := filepath.Join(saveDir, fileName)
-				html, err := e.DOM.Html()
-				if err != nil {
-					log.Printf("can't save html: %s", err)
-				}
-				err = os.WriteFile(filePath, []byte(html), 0644)
-				if err != nil {
-					log.Printf("Error saving article '%s': %v\n", articleTitle, err)
-				}
-				log.Printf("Article '%s' saved as '%s'\n", articleTitle, fileName)
-			})
-
-			c.OnError(func(r *colly.Response, err error) {
-				log.Printf("Request to %s failed: %v\n", r.Request.URL, err)
-			})
-
-			err := c.Visit(wikipediaRandomArticleUrl)
-			if err != nil {
-				log.Printf("Error visiting URL: %v\n", err)
-			}
-		}()
+			}()
+		}
+		currentCycle++
+		if currentCycle >= docsToDownload/250 {
+			break
+		}
 	}
+
 	wg.Wait()
 }
 
